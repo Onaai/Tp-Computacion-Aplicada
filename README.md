@@ -24,13 +24,13 @@ Trabajo Práctico Integrador grupal de la materia **Computación Aplicada**. Con
 
 ### 1.2 — Blanqueo y cambio de contraseña root
 
-La VM venía con contraseña de root desconocida. Se accedió al modo recovery desde el GRUB para blanquearla y luego se estableció la contraseña requerida por la consigna: `palermo`
+Arrancamos por **blanquear el root**, porque la contraseña inicial era desconocida. Se accedió al modo recovery desde el GRUB para blanquearla y luego se configuró la contraseña pedida por la consigna: `palermo`
 
-> 📹 **Video:** `Blanqueo de root.webm` — se aprecia el proceso completo de blanqueo y cambio de contraseña.
+> 📹 **Video:** `images/Blanqueo_de_root.webm` — se aprecia el proceso completo de blanqueo y cambio de contraseña.
 
 ### 1.3 — Hostname
 
-Se configuró el nombre del servidor con:
+Después configuramos el hostname de la máquina:
 
 ```bash
 hostnamectl set-hostname TPServer
@@ -45,7 +45,9 @@ hostname
 
 ### 2.1 — Actualización del SO a Debian 12
 
-La VM venía con **Debian 11 (Bullseye)**. Antes de actualizar a Debian 12, fue necesario corregir problemas de resolución DNS y repositorios en `/etc/apt/sources.list`. Se realizó primero una actualización completa de Debian 11 para dejar el sistema estable:
+Al momento de actualizar el sistema nos encontramos con algunos problemas. La VM venía con **Debian 11**, y cuando intentamos actualizar directamente tuvimos inconvenientes con la resolución de DNS y con los repositorios configurados en `/etc/apt/sources.list`, así que primero tuvimos que corregir eso.
+
+Por ese motivo, primero realizamos una **actualización completa de Debian 11** para dejar el sistema estable y consistente:
 
 ```bash
 apt update
@@ -53,10 +55,10 @@ apt upgrade -y
 apt autoremove
 ```
 
-![Actualización de Debian 11](images/En_el_camino_tuve_que_actualizar_debian_11.png)
+![Actualización de Debian 11 en proceso](images/En_el_camino_tuve_que_actualizar_debian_11.png)
 ![Debian 11 completamente actualizado](images/Debian_11_completamente_actualizado_1.png)
 
-Luego se modificaron los repositorios para apuntar a **Debian 12 (Bookworm)** y se inició la migración:
+Una vez resuelto eso, modificamos los repositorios para apuntar a **Debian 12 (Bookworm)** y recién ahí iniciamos la actualización:
 
 ```bash
 nano /etc/apt/sources.list
@@ -67,7 +69,7 @@ reboot
 
 ![apt update con repos de Debian 12](images/Pasted_image_20260512181733.png)
 ![Proceso de instalación de Debian 12](images/proceso_de_debian_12_instalandose.png)
-![Debian 12 - full-upgrade completado](images/debian_11_a_debian_12.png)
+![Debian 12 instalado](images/debian_11_a_debian_12.png)
 
 Durante la actualización se reinstalaron componentes del sistema, incluyendo el gestor de arranque GRUB:
 
@@ -75,12 +77,16 @@ Durante la actualización se reinstalaron componentes del sistema, incluyendo el
 
 ### 2.2 — SSH
 
-Se instaló y configuró el servicio SSH. Se editó `/etc/ssh/sshd_config` habilitando el acceso root por clave pública:
+Volviendo a la terminal desde el root, lo que tocaba hacer según la consigna era instalar SSH. Pero primero instalamos nano para trabajar más cómodamente:
 
 ```bash
-apt-get install openssh-server -y
 apt-get install nano -y
+apt-get install openssh-server -y
 ```
+
+Se editó `/etc/ssh/sshd_config` habilitando:
+- `PermitRootLogin yes`
+- `PubkeyAuthentication yes`
 
 ![Configuración de sshd_config](images/Pasted_image_20260512184638.png)
 
@@ -95,6 +101,8 @@ cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
 
 ### 2.3 — Servidor Web (Apache + PHP)
 
+Con todo lo anterior listo, procedimos a instalar Apache y PHP:
+
 ```bash
 apt-get install apache2 php libapache2-mod-php -y
 systemctl start apache2
@@ -103,7 +111,7 @@ systemctl enable apache2
 
 ![Instalación de Apache y PHP](images/Pasted_image_20260512185652.png)
 
-Los archivos `index.php` y `logo.png` se obtuvieron descomprimiendo el material adicional provisto por la cátedra:
+Descomprimimos la carpeta `Material_Adicional_TPVMCA` para acceder a los archivos con los que íbamos a trabajar:
 
 ```bash
 tar -xzvf /root/Material_Adicional_TPVMCA.tar.gz -C /root/
@@ -122,17 +130,17 @@ mysql -u root -e "SHOW DATABASES;"
 ```
 
 ![Instalación de MariaDB](images/Pasted_image_20260512202101.png)
-![Verificación de bases de datos](images/Pasted_image_20260512202155.png)
+![Verificación de bases de datos cargadas](images/Pasted_image_20260512202155.png)
 
 ---
 
 ## ✅ Consigna 3 — Configuración de red
 
-Se obtuvo la información de red con `ip a` e `ip route`:
+Con la instalación de servicios completa, pasamos a la consigna 3. Obtuvimos los datos de red con `ip a` e `ip route`:
 
-![Datos de red](images/Pasted_image_20260512202451.png)
+![Datos de red obtenidos](images/Pasted_image_20260512202451.png)
 
-Con esos datos se configuró una IP estática editando `/etc/network/interfaces`:
+Con esos datos configuramos una IP estática editando `/etc/network/interfaces`:
 
 ```
 auto enp0s3
@@ -142,7 +150,7 @@ iface enp0s3 inet static
     gateway 192.168.0.1
 ```
 
-![Configuración de interfaces](images/Pasted_image_20260512202710.png)
+![Archivo /etc/network/interfaces configurado](images/Pasted_image_20260512202711.png)
 
 ```bash
 systemctl restart networking
@@ -154,9 +162,9 @@ systemctl restart networking
 
 ### 4.1 — Nuevo disco
 
-Se agregó un disco de **10 GB** desde la configuración de VirtualBox (Puerto SATA 3 → `sdc`).
+Se agregó un disco de **10 GB** adicional desde la configuración de VirtualBox (Puerto SATA 3 → `sdc`).
 
-> 📹 **Video:** `Agregando el nuevo disco 1.mp4` — muestra el proceso de agregar el disco desde VirtualBox.
+> 📹 **Video:** `images/Agregando_el_nuevo_disco_1.mp4` — muestra el proceso de agregar el disco desde VirtualBox con la VM apagada.
 
 ### 4.2 — Particiones
 
@@ -178,7 +186,7 @@ mkfs.ext4 /dev/sdc2
 
 ![Formato ext4 de las particiones](images/Pasted_image_20260512203901.png)
 
-Se crearon los directorios y se montaron:
+Creamos las carpetas correspondientes y montamos, esto es crear el directorio que nos pide la consigna:
 
 ```bash
 mkdir /www_dir
@@ -205,7 +213,7 @@ cp /root/Material_Adicional_TPVMCA/logo.png /www_dir/
 </VirtualHost>
 ```
 
-En `/etc/apache2/apache2.conf` se agregaron permisos:
+En `/etc/apache2/apache2.conf` se agregaron permisos para el nuevo directorio:
 ```apache
 <Directory /www_dir>
     Options Indexes FollowSymLinks
@@ -223,7 +231,12 @@ systemctl restart apache2
 
 ### 4.4 y 4.5 — Montaje automático (fstab)
 
-El archivo `/etc/fstab` es una lista que Linux lee **cada vez que arranca** y monta automáticamente los discos listados. Se agregaron las entradas usando los UUID de cada partición:
+El archivo `/etc/fstab` es una lista que Linux lee **cada vez que arranca**, y monta automáticamente los discos que están listados ahí. Sin esto, las particiones `/www_dir` y `/backup_dir` existirían pero quedarían vacías y sin conectar al sistema cada vez que reiniciás.
+
+Lo que hicimos fue:
+- Agregar las dos líneas con el UUID de cada partición → así Linux las identifica aunque cambien de nombre
+- El `mount -a` recarga el fstab sin reiniciar, para verificar que está bien escrito
+- El `reboot` es para confirmar que arrancan solas al inicio
 
 ```bash
 echo "UUID=$(blkid -s UUID -o value /dev/sdc1)  /www_dir  ext4  defaults  0  2" >> /etc/fstab
@@ -234,7 +247,7 @@ reboot
 
 ![fstab con UUIDs correctos](images/Pasted_image_20260513131724.png)
 
-Resultado tras el reboot:
+Así quedó después del reboot:
 
 ![df -h tras el reboot](images/Pasted_image_20260513131907.png)
 
@@ -258,27 +271,27 @@ nano /opt/scripts/backup_full.sh
 chmod +x /opt/scripts/backup_full.sh
 ```
 
-![Script backup_full.sh](images/Pasted_image_20260513160909.png)
-
-El script:
+El script cumple con todos los requisitos de la consigna:
 - Acepta argumentos `<origen>` y `<destino>`
-- Incluye opción `-help`
-- Valida que los directorios existan antes de ejecutar
+- Incluye opción `-help` para guiar al usuario
+- Valida que los directorios de origen y destino existan antes de ejecutar
 - Genera archivos con la fecha en formato ANSI (`YYYYMMDD`), por ejemplo: `log_bkp_20260513.tar.gz`
 
-Prueba de ejecución:
+![Script backup_full.sh](images/Pasted_image_20260513160909.png)
+
+Prueba de ejecución exitosa:
 
 ![Ejecución del script](images/Pasted_image_20260513161039.png)
 
 ### 5.7 — Cron
+
+Se configuraron las tareas automáticas con `crontab -e`:
 
 ```bash
 crontab -e
 ```
 
 ![crontab -e](images/Pasted_image_20260513161243.png)
-
-Tareas configuradas:
 
 ```
 # Todos los días a las 00:00 → backup de /var/log
@@ -288,7 +301,7 @@ Tareas configuradas:
 0 23 * * 1,3,5 /opt/scripts/backup_full.sh /www_dir /backup_dir
 ```
 
-![crontab -l verificación](images/Pasted_image_20260513161423.png)
+![crontab -l verificación final](images/Pasted_image_20260513161423.png)
 
 ---
 
@@ -297,7 +310,7 @@ Tareas configuradas:
 ```
 /
 ├── README.md
-├── images/               ← capturas de evidencia
+├── images/               ← capturas de evidencia y videos
 ├── root.tar.gz
 ├── etc.tar.gz
 ├── opt.tar.gz
