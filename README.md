@@ -76,7 +76,6 @@ apt full-upgrade -y
 reboot
 ```
 
-![apt update con repos de Debian 12](images/Pasted_image_20260512181733.png)
 ![Proceso de instalación de Debian 12](images/proceso_de_debian_12_instalandose.png)
 ![Debian 12 instalado](images/debian_11_a_debian_12.png)
 
