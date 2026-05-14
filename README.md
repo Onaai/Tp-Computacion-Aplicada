@@ -166,9 +166,9 @@ Se agregó un disco de **10 GB** adicional desde la configuración de VirtualBox
 
 > 📹 **Video:** `images/Agregando_el_nuevo_disco_1.mp4` — muestra el proceso de agregar el disco desde VirtualBox con la VM apagada.
 
-### 4.2 — Particiones
+### 4.2 — Particiones (tipo 83)
 
-Se crearon dos particiones estándar (tipo 83 - Linux) usando `fdisk /dev/sdc`:
+Se crearon dos particiones estándar **(tipo 83 - Linux)** usando `fdisk /dev/sdc`:
 
 | Partición | Tamaño | Directorio |
 |-----------|--------|------------|
@@ -186,7 +186,7 @@ mkfs.ext4 /dev/sdc2
 
 ![Formato ext4 de las particiones](images/Pasted_image_20260512203901.png)
 
-Creamos las carpetas correspondientes y montamos, esto es crear el directorio que nos pide la consigna:
+Creamos las carpetas correspondientes y montamos:
 
 ```bash
 mkdir /www_dir
@@ -196,6 +196,10 @@ mount /dev/sdc2 /backup_dir
 ```
 
 ![Creación de directorios y montaje](images/Pasted_image_20260512204040.png)
+
+Verificación final del tipo de partición (tipo 83 - Linux):
+
+![Verificación tipo 83](images/Pasted_image_20260514072720.png)
 
 ### 4.3 — Archivos web en `/www_dir`
 
@@ -222,12 +226,28 @@ En `/etc/apache2/apache2.conf` se agregaron permisos para el nuevo directorio:
 </Directory>
 ```
 
+Al intentar acceder al sitio web, Apache devolvía un error **403 Forbidden** por falta de permisos:
+
+![Error 403 Forbidden](images/Pasted_image_20260514071206.png)
+
+Se corrigieron los permisos y la configuración:
+
 ```bash
+chmod 755 /www_dir
+chown -R www-data:www-data /www_dir
+apt-get install php-mysqli -y
 systemctl restart apache2
 ```
 
-![Apache reiniciado correctamente](images/Pasted_image_20260513133646.png)
-![Archivos en /www_dir](images/Pasted_image_20260513133724.png)
+![Corrección de permisos y configuración](images/Pasted_image_20260514071357.png)
+
+La página aparecía en blanco porque faltaba el módulo `php-mysqli`. Una vez instalado:
+
+![Página en blanco antes de instalar php-mysqli](images/Pasted_image_20260514072419.png)
+
+El sitio web quedó funcionando correctamente, mostrando los datos de alumnos desde la base de datos:
+
+![Sitio web funcionando](images/Pasted_image_20260514072447.png)
 
 ### 4.4 y 4.5 — Montaje automático (fstab)
 
@@ -302,6 +322,12 @@ crontab -e
 ```
 
 ![crontab -l verificación final](images/Pasted_image_20260513161423.png)
+
+---
+
+## ✅ Consigna 6 — GitHub
+
+Repositorio creado en GitHub con toda la documentación, imágenes y videos de evidencia, y los directorios del servidor comprimidos.
 
 ---
 
