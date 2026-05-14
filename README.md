@@ -26,7 +26,11 @@ Trabajo Práctico Integrador grupal de la materia **Computación Aplicada**. Con
 
 Arrancamos por **blanquear el root**, porque la contraseña inicial era desconocida. Se accedió al modo recovery desde el GRUB para blanquearla y luego se configuró la contraseña pedida por la consigna: `palermo`
 
-> 📹 **Video:** `images/Blanqueo_de_root.webm` — se aprecia el proceso completo de blanqueo y cambio de contraseña.
+> 📹 **Video:**
+
+https://github.com/user-attachments/assets/f5964af2-7d7d-43bf-a9b4-c4840f512ec2
+
+`images/Blanqueo_de_root.webm` — se aprecia el proceso completo de blanqueo y cambio de contraseña.
 
 ### 1.3 — Hostname
 
@@ -172,7 +176,17 @@ systemctl restart networking
 
 Se agregó un disco de **10 GB** adicional desde la configuración de VirtualBox (Puerto SATA 3 → `sdc`).
 
-> 📹 **Video:** `images/Agregando_el_nuevo_disco_1.mp4` — muestra el proceso de agregar el disco desde VirtualBox con la VM apagada.
+> 📹 **Video:** 
+
+
+
+
+
+https://github.com/user-attachments/assets/3b286209-45bc-4eca-80e3-15f763ddafc4
+
+
+
+`images/Agregando_el_nuevo_disco_1.mp4` — muestra el proceso de agregar el disco desde VirtualBox con la VM apagada.
 
 ### 4.2 — Particiones (tipo 83)
 
