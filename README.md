@@ -58,10 +58,19 @@ apt autoremove
 ![Actualización de Debian 11 en proceso](images/En_el_camino_tuve_que_actualizar_debian_11.png)
 ![Debian 11 completamente actualizado](images/Debian_11_completamente_actualizado_1.png)
 
-Una vez resuelto eso, modificamos los repositorios para apuntar a **Debian 12 (Bookworm)** y recién ahí iniciamos la actualización:
+Una vez resuelto eso, modificamos los repositorios para apuntar a **Debian 12 (Bookworm)**:
 
 ```bash
 nano /etc/apt/sources.list
+```
+Los links que fueron insertados en **/etc/apt/sources.list**
+```bash
+deb http://deb.debian.org/debian bookworm main contrib non-free non-free-firmware
+deb http://security.debian.org/debian-security bookworm-security main contrib non-free non-free-firmware
+deb http://deb.debian.org/debian bookworm-updates main contrib non-free non-free-firmware
+```
+Recién ahi iniciamos la actualización
+```bash
 apt update
 apt full-upgrade -y
 reboot
