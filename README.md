@@ -353,6 +353,108 @@ Repositorio creado en GitHub con toda la documentación, imágenes y videos de e
 
 ---
 
+## ⭐ Extra — Papelera de reciclaje (`trash.sh`)
+
+El profesor solicitó implementar una papelera de reciclaje usando **scripting bash**. En vez de borrar archivos definitivamente con `rm`, el script los mueve a `/opt/trash/` renombrándolos con la fecha y hora como prefijo. Los archivos se eliminan automáticamente después de 30 días mediante una tarea cron.
+
+### Funcionalidades
+
+| Comando | Acción |
+|---------|--------|
+| `trash <archivo>` | Manda el archivo a la papelera |
+| `trash --list` | Lista el contenido de la papelera |
+| `trash --empty` | Vacía la papelera completamente |
+| `trash --cleanup` | Elimina archivos de más de 30 días |
+| `trash -help` | Muestra la ayuda de uso |
+
+### Código del script (`/opt/scripts/trash.sh`)
+
+```bash
+#!/bin/bash
+
+TRASH_DIR="/opt/trash"
+mkdir -p "$TRASH_DIR"
+
+if [ "$1" = "-help" ] || [ $# -eq 0 ]; then
+    echo "Uso:"
+    echo "  trash <archivo>    → Manda el archivo a la papelera"
+    echo "  trash --list       → Lista el contenido de la papelera"
+    echo "  trash --empty      → Vacía la papelera completamente"
+    echo "  trash --cleanup    → Elimina archivos de más de 30 días"
+    exit 0
+fi
+
+if [ "$1" = "--list" ]; then
+    echo "=== Contenido de la papelera ==="
+    if [ -z "$(ls -A $TRASH_DIR 2>/dev/null)" ]; then
+        echo "La papelera está vacía."
+    else
+        ls -lh "$TRASH_DIR"
+    fi
+    exit 0
+fi
+
+if [ "$1" = "--empty" ]; then
+    rm -rf "$TRASH_DIR"/*
+    echo "Papelera vaciada completamente."
+    exit 0
+fi
+
+if [ "$1" = "--cleanup" ]; then
+    echo "Eliminando archivos con más de 30 días..."
+    find "$TRASH_DIR" -mtime +30 -delete
+    echo "Limpieza completada."
+    exit 0
+fi
+
+ARCHIVO=$1
+
+if [ ! -e "$ARCHIVO" ]; then
+    echo "Error: '$ARCHIVO' no existe."
+    exit 1
+fi
+
+FECHA=$(date +%Y%m%d_%H%M%S)
+NOMBRE=$(basename "$ARCHIVO")
+
+mv "$ARCHIVO" "$TRASH_DIR/${FECHA}_${NOMBRE}"
+echo "Archivo '$NOMBRE' enviado a la papelera."
+```
+
+### Instalación paso a paso
+
+```bash
+# 1. Crear el script
+nano /opt/scripts/trash.sh
+
+# 2. Darle permisos de ejecución
+chmod +x /opt/scripts/trash.sh
+
+# 3. Crear el alias para escribir solo "trash" en vez de la ruta completa
+echo "alias trash='/opt/scripts/trash.sh'" >> /root/.bashrc
+
+# 4. Recargar la configuración para que el alias esté disponible
+source /root/.bashrc
+```
+
+### Cron para limpieza automática
+
+Se configuró con `crontab -e` para que el cleanup corra todos los días a las 3 AM:
+
+```
+0 3 * * * /opt/scripts/trash.sh --cleanup
+```
+
+### Lógica del cleanup de 30 días
+
+Cuando un archivo se manda a la papelera con `mv`, Linux registra la fecha de modificación en ese momento. El comando `find /opt/trash -mtime +30 -delete` busca archivos cuya fecha de modificación tenga más de 30 días y los elimina automáticamente. Los archivos más recientes no se tocan.
+
+### Diferencia entre script y alias
+
+Un **alias** es solo un atajo de texto sin lógica propia. Un **script** es un programa completo que puede recibir argumentos, usar variables, tomar decisiones con `if/else` y devolver códigos de error. El alias en este caso solo sirve para escribir `trash` en vez de `/opt/scripts/trash.sh`. Toda la inteligencia está en el script.
+
+---
+
 ## 📁 Estructura del repositorio
 
 ```
